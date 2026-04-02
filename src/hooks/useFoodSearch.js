@@ -17,6 +17,8 @@ function useFoodSearch() {
       const response = await axios.get(url, {
         params: {
           search_terms: query,
+          search_simple: 1,
+          action: 'process',
           json: 1,
           page_size: 10
         }
