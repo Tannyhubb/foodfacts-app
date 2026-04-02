@@ -4,8 +4,8 @@ export default function FoodCard({ product }) {
   const brandName = product?.brands || 'Unknown Brand';
   
   // Safe extraction of nested structures
-  const imageFrontUrl = product?.image_front_url || product?.image_url;
-  const imageUrl = imageFrontUrl || 'https://dummyimage.com/300x300/e0e0e0/636363.png&text=No+Image';
+  const imageSmallUrl = product?.image_small_url || product?.image_url;
+  const imageUrl = imageSmallUrl || 'https://dummyimage.com/300x300/e0e0e0/636363.png&text=No+Image';
   
   const nutriments = product?.nutriments || {};
   const calories = nutriments['energy-kcal_100g'] !== undefined ? `${nutriments['energy-kcal_100g']} kcal` : 'N/A';
