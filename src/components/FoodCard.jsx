@@ -1,56 +1,51 @@
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import CardActionArea from '@mui/material/CardActionArea'
+import Typography from '@mui/material/Typography'
+import Chip from '@mui/material/Chip'
 import { useNavigate } from 'react-router-dom'
 
-export default function FoodCard({ product }) {
+function FoodCard({ product }) {
   const navigate = useNavigate()
-  // Optionals and fallback handling as requested
-  const productName = product?.product_name || 'Unknown Product';
-  const brandName = product?.brands || 'Unknown Brand';
-  
-  // Safe extraction of nested structures
-  const imageSmallUrl = product?.image_small_url || product?.image_url;
-  const imageUrl = imageSmallUrl || 'https://dummyimage.com/300x300/e0e0e0/636363.png&text=No+Image';
-  
-  const nutriments = product?.nutriments || {};
-  const calories = nutriments['energy-kcal_100g'] !== undefined ? `${nutriments['energy-kcal_100g']} kcal` : 'N/A';
-  const protein = nutriments?.proteins_100g !== undefined ? `${nutriments.proteins_100g} g` : 'N/A';
-  const fat = nutriments?.fat_100g !== undefined ? `${nutriments.fat_100g} g` : 'N/A';
-  const carbs = nutriments?.carbohydrates_100g !== undefined ? `${nutriments.carbohydrates_100g} g` : 'N/A';
-  const code = product?.code;
 
   const handleClick = () => {
-    if (code) {
-      navigate(`/product/${code}`);
-    }
+    navigate(`/product/${product.id || product.code}`, { state: { product } })
   }
 
+  // Handle fallback product image appropriately
+  const imageUrl = product.image_small_url || product.image_url || 'https://dummyimage.com/300x300/e0e0e0/636363.png&text=No+Image';
+
   return (
-    <div className="food-card" onClick={handleClick} style={{ cursor: 'pointer' }}>
-      <div className="card-image-container">
-        <img src={imageUrl} alt={productName} className="food-image" />
-      </div>
-      <div className="card-content">
-        <h3 className="food-name">{productName}</h3>
-        <p className="food-brand">{brandName}</p>
-        
-        <div className="nutrition-info">
-          <div className="nutrition-item">
-            <span className="nutriment-label">Calories</span>
-            <span className="nutriment-value">{calories}</span>
-          </div>
-          <div className="nutrition-item">
-            <span className="nutriment-label">Protein</span>
-            <span className="nutriment-value">{protein}</span>
-          </div>
-          <div className="nutrition-item">
-            <span className="nutriment-label">Fat</span>
-            <span className="nutriment-value">{fat}</span>
-          </div>
-          <div className="nutrition-item">
-            <span className="nutriment-label">Carbs</span>
-            <span className="nutriment-value">{carbs}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <CardActionArea onClick={handleClick} sx={{ flexGrow: 1 }}>
+        <CardMedia
+          component="img"
+          height="140"
+          image={imageUrl}
+          alt={product.product_name || 'Product'}
+          sx={{ objectFit: 'contain', p: 1, backgroundColor: '#f9fafb' }}
+        />
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ lineHeight: 1.2, mb: 1 }}>
+            {product.product_name || 'Unknown Product'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {product.brands || 'Unknown Brand'}
+          </Typography>
+          {product.nutriments?.['energy-kcal_100g'] !== undefined && (
+            <Chip
+              label={`${Math.round(product.nutriments['energy-kcal_100g'])} kcal / 100g`}
+              size="small"
+              color="primary"
+              variant="outlined"
+              sx={{ mt: 1 }}
+            />
+          )}
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  )
 }
+
+export default FoodCard
