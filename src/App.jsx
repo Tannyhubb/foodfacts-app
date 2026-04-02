@@ -1,121 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import SearchBar from './components/SearchBar';
+import FoodList from './components/FoodList';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [products, setProducts] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleSearch = async (query) => {
+    if (!query.trim()) return;
+
+    setLoading(true);
+    setHasSearched(true);
+    setProducts(null); // Clear previous results
+
+    try {
+      const response = await fetch(
+        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`
+      );
+      
+      const data = await response.json();
+      
+      if (data.products) {
+        // Filter out products with missing or empty names as required
+        const validProducts = data.products.filter(
+          (product) => product.product_name && product.product_name.trim() !== ''
+        );
+        setProducts(validProducts);
+      } else {
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch food data:", error);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-container">
+      <header className="app-header">
+        <h1>Nutrition Explorer</h1>
+        <p className="subtitle">Discover nutritional information for your favorite foods.</p>
+        <SearchBar onSearch={handleSearch} />
+      </header>
 
-      <div className="ticks"></div>
+      <main className="app-content">
+        {!hasSearched && (
+          <div className="state-message empty-state">
+            <div className="icon">🥑</div>
+            <h2>Ready to search?</h2>
+            <p>Enter a food name above to see its nutritional values!</p>
+          </div>
+        )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {loading && (
+          <div className="state-message loading-state">
+            <div className="spinner"></div>
+            <p>Searching for delicious data...</p>
+          </div>
+        )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {!loading && hasSearched && products && products.length === 0 && (
+          <div className="state-message no-results-state">
+            <div className="icon">🤷</div>
+            <h2>No results found</h2>
+            <p>We couldn't find any products matching your search. Try another term!</p>
+          </div>
+        )}
+
+        {!loading && hasSearched && products && products.length > 0 && (
+          <FoodList products={products} />
+        )}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
