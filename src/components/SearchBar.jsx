@@ -1,26 +1,43 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-export default function SearchBar({ onSearch }) {
-  const [query, setQuery] = useState('');
+function SearchBar({ onSearch }) {
+  const [query, setQuery] = useState('')
+  const [validationError, setValidationError] = useState('')
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(query);
-  };
+    e.preventDefault()
+
+    if (!query.trim()) {
+      setValidationError('Please enter a food name to search.')
+      return
+    }
+
+    if (query.trim().length < 2) {
+      setValidationError('Search must be at least 2 characters.')
+      return
+    }
+
+    setValidationError('')
+    onSearch(query.trim())
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="search-bar-form">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search for food products (e.g., peanut butter)..."
-        className="search-input"
-        required
-      />
-      <button type="submit" className="search-button">
-        Search
-      </button>
+    <form onSubmit={handleSubmit} className="search-form">
+      <div className="search-input-wrap search-bar-form">
+        <input
+          type="text"
+          placeholder="Search for a food... e.g. banana, oats"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="search-input"
+        />
+        <button type="submit" className="search-button">Search</button>
+      </div>
+      {validationError && (
+        <p className="validation-error">{validationError}</p>
+      )}
     </form>
-  );
+  )
 }
+
+export default SearchBar
