@@ -1,50 +1,42 @@
-import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import FoodCard from '../components/FoodCard'
 
-function SavedPage({ saved, dispatch }) {
-  const navigate = useNavigate()
+function SavedPage() {
+  const savedItems = useSelector(state => state.saved.items)
 
-  if (saved.length === 0) {
+  if (savedItems.length === 0) {
     return (
-      <div className="page state-message empty-state">
-        <div className="icon">📂</div>
-        <h2>Saved Items</h2>
-        <p>You haven't saved anything yet. Search for a food and save it from the detail page.</p>
-      </div>
+      <Container sx={{ py: 8, textAlign: 'center' }}>
+        <Typography variant="h1" sx={{ fontSize: '4rem', mb: 2 }}>📂</Typography>
+        <Typography variant="h4" gutterBottom fontWeight={700}>
+          Saved Items
+        </Typography>
+        <Typography color="text.secondary">
+          You haven't saved anything yet. Search for a food and save it from the detail page.
+        </Typography>
+      </Container>
     )
   }
 
   return (
-    <div className="page">
-      <div className="app-header" style={{ marginBottom: '2rem' }}>
-        <h2>Saved Items ({saved.length})</h2>
-      </div>
-      <div className="food-list">
-        {saved.map((product) => {
-          const productName = product.product_name || 'Unknown Product'
-          const brandName = product.brands || 'Unknown Brand'
-          
-          return (
-            <div key={product.code} className="saved-item food-card" style={{ padding: '1rem' }}>
-              <div className="card-content">
-                <h3 className="food-name">{productName}</h3>
-                <p className="food-brand">{brandName}</p>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                  <button onClick={() => navigate(`/product/${product.code}`)} className="search-button" style={{ flex: 1, padding: '0.5rem' }}>
-                    View Details
-                  </button>
-                  <button 
-                    onClick={() => dispatch({ type: 'REMOVE', code: product.code })} 
-                    className="save-button saved" style={{ flex: 1, padding: '0.5rem', backgroundColor: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5' }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" fontWeight={800}>
+          Saved Items ({savedItems.length})
+        </Typography>
+      </Box>
+      <Grid container spacing={3}>
+        {savedItems.map((product) => (
+          <Grid item xs={12} sm={6} md={4} key={product.id || product.code}>
+            <FoodCard product={product} />
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   )
 }
 
