@@ -13,16 +13,8 @@ function useFoodSearch() {
     setHasSearched(true)
 
     try {
-      const url = `https://world.openfoodfacts.org/cgi/search.pl`
-      const response = await axios.get(url, {
-        params: {
-          search_terms: query,
-          search_simple: 1,
-          action: 'process',
-          json: 1,
-          page_size: 10
-        }
-      })
+      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10`
+      const response = await axios.get(url)
 
       const filtered = response.data.products.filter(
         (product) => product.product_name && product.product_name.trim() !== ''
