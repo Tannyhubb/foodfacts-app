@@ -1,9 +1,11 @@
+import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
+
 function ErrorMessage({ message }) {
   return (
-    <div className="error-message">
-      <span className="error-icon">⚠️</span>
-      <p>{message}</p>
-    </div>
+    <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 2 }}>
+      <Alert severity="error">{message}</Alert>
+    </Box>
   )
 }
 

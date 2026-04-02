@@ -1,50 +1,58 @@
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import CircularProgress from '@mui/material/CircularProgress'
+import Box from '@mui/material/Box'
+
 import useFoodSearch from '../hooks/useFoodSearch'
 import SearchBar from '../components/SearchBar'
-import FoodList from '../components/FoodList'
+import FoodCard from '../components/FoodCard'
 import ErrorMessage from '../components/ErrorMessage'
 
 function HomePage() {
   const { results, loading, error, searchFood, hasSearched } = useFoodSearch()
 
   return (
-    <div className="page">
-      <div className="app-header">
-        <h1>Nutrition Explorer</h1>
-        <p className="subtitle">Discover nutritional information for your favorite foods.</p>
-        <SearchBar onSearch={searchFood} />
-      </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h4" gutterBottom fontWeight={800} align="center">
+        Search Nutrition Info
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }} align="center">
+        Type any food name to see its nutrition facts.
+      </Typography>
 
-      {!hasSearched && (
-        <div className="state-message empty-state">
-          <div className="icon">🥑</div>
-          <h2>Ready to search?</h2>
-          <p>Enter a food name above to see its nutritional values!</p>
-        </div>
-      )}
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <SearchBar onSearch={searchFood} />
+      </Box>
+
+      {error && !loading && <ErrorMessage message={error} />}
 
       {loading && (
-        <div className="state-message loading-state">
-          <div className="spinner"></div>
-          <p>Searching for delicious data...</p>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+          <CircularProgress color="primary" />
+        </Box>
       )}
 
-      {error && !loading && (
-        <ErrorMessage message={error} />
+      {!loading && !error && !hasSearched && (
+        <Typography color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
+          Search for a food above to see nutrition info.
+        </Typography>
       )}
 
-      {!loading && !error && hasSearched && results && results.length === 0 && (
-        <div className="state-message no-results-state">
-          <div className="icon">🤷</div>
-          <h2>No results found</h2>
-          <p>We couldn't find any products matching your search. Try another term!</p>
-        </div>
+      {!loading && results.length === 0 && !error && hasSearched && (
+        <Typography color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
+          No products matched your search.
+        </Typography>
       )}
 
-      {!loading && !error && hasSearched && results && results.length > 0 && (
-        <FoodList products={results} />
-      )}
-    </div>
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        {results.map(product => (
+          <Grid item xs={12} sm={6} md={4} key={product.id || product.code}>
+            <FoodCard product={product} />
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   )
 }
 
